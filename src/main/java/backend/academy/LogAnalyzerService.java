@@ -3,8 +3,10 @@ package backend.academy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class LogAnalyzerService {
 
@@ -14,11 +16,13 @@ public class LogAnalyzerService {
         Map<String, Integer> statusCodesCounter = new HashMap<>();
 
         List<Long> responseSizes = new ArrayList<>();
+        Set<String> uniqueIPs = new HashSet<>();
 
         for (LogRecord record : logRecords) {
             resourcesCounter.put(record.request(), resourcesCounter.getOrDefault(record.request(), 0) + 1);
             statusCodesCounter.put(record.status().toString(), statusCodesCounter.getOrDefault(record.status().toString(), 0) + 1);
             responseSizes.add(record.bodyBytesSent());
+            uniqueIPs.add(record.remoteAddr());
         }
 
         double averageResponseSize = responseSizes.stream().mapToLong(Long::longValue).average().orElse(0);
@@ -28,6 +32,6 @@ public class LogAnalyzerService {
         double percentile95ResponseSize = size95PercentileIndex >= 0 ? responseSizes.get(size95PercentileIndex) : 0;
 
         return new LogReport(totalRequests, resourcesCounter, statusCodesCounter,
-            averageResponseSize, percentile95ResponseSize);
+            averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
     }
 }

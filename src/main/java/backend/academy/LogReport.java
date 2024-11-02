@@ -13,4 +13,5 @@ public class LogReport {
     private final Map<String, Integer> statusCodesCounter;
     private final double averageResponseSize;
     private final double percentile95ResponseSize;
+    private final int uniqueIPCount;
 }
