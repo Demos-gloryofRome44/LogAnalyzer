@@ -1,5 +1,7 @@
 package backend.academy;
 
+import backend.academy.enums.OutputFormat;
+import backend.academy.enums.ParseState;
 import lombok.Getter;
 import java.net.URI;
 import java.net.URISyntaxException;
