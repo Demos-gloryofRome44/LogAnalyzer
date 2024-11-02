@@ -1,5 +1,7 @@
 package backend.academy;
 
+import java.nio.file.Paths;
+
 public class LogSource {
     private final String path;
     private final LogType type;
@@ -20,5 +22,10 @@ public class LogSource {
 
     public LogType getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return Paths.get(path).getFileName().toString();
     }
 }
