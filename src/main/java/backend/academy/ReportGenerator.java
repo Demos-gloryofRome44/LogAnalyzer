@@ -26,16 +26,16 @@ public class ReportGenerator {
             argumentAnalyzer.from() != null ? argumentAnalyzer.from() : "     -    "));
         reportStr.append(String.format("|    Конечная дата      |   %10s   |\n",
             argumentAnalyzer.to() != null ? argumentAnalyzer.to() : "     -    "));
-        reportStr.append(String.format("|  Количество запросов  | %6d         |\n", report.totalRequests()));
-        reportStr.append(String.format("| Средний размер ответа |  %6.2fb    |\n", report.averageResponseSize()));
-        reportStr.append(String.format("|   95p размера ответа  | %.2fb       |\n", report.percentile95ResponseSize()));
-        reportStr.append(String.format("|  Кол-во уникальных IP |   %5d        |\n", report.uniqueIPCount()));
+        reportStr.append(String.format("|  Количество запросов  |   %8d     |\n", report.totalRequests()));
+        reportStr.append(String.format("| Средний размер ответа |   %8.2fb   |\n", report.averageResponseSize()));
+        reportStr.append(String.format("|   95p размера ответа  |    %8.2fb   |\n", report.percentile95ResponseSize()));
+        reportStr.append(String.format("|  Кол-во уникальных IP |  %8d      |\n", report.uniqueIPCount()));
 
         reportStr.append("\n#### Запрашиваемые ресурсы\n");
-        reportStr.append("| Ресурс  | Количество |\n");
-        reportStr.append("|:-------:|-----------:|\n");
+        reportStr.append("|        Ресурс        | Количество |\n");
+        reportStr.append("|:--------------------:|-----------:|\n");
         report.resourcesCounter().forEach((resource, count) ->
-            reportStr.append(String.format("| %s | %d |\n", resource, count))
+            reportStr.append(String.format("| %s | %-9d |\n", resource, count))
         );
 
         reportStr.append("\n#### Коды ответа\n");
@@ -49,19 +49,19 @@ public class ReportGenerator {
         });
 
         reportStr.append("\n#### Статистика по User-Agent\n");
-        reportStr.append("| User-Agent               | Количество     |\n");
-        reportStr.append("|:-------------------------:|---------------:|\n");
+        reportStr.append("|                   User-Agent                  | Количество |\n");
+        reportStr.append("|:---------------------------------------------:|-----------:|\n");
 
         for (Map.Entry<String, Integer> entry : report.userAgentCounter()) {
-            reportStr.append(String.format("| %s | %d |\n", entry.getKey(), entry.getValue()));
+            reportStr.append(String.format("| %45s | %10d |\n", entry.getKey(), entry.getValue()));
         }
 
         reportStr.append("\n#### Статистика по IP-адресам\n");
-        reportStr.append("| IP-адрес                 | Количество     |\n");
-        reportStr.append("|:-------------------------:|---------------:|\n");
+        reportStr.append("|      IP-адрес     | Количество |\n");
+        reportStr.append("|:-----------------:|-----------:|\n");
 
         for (Map.Entry<String, Integer> entry : report.ipAddressCounts()) {
-            reportStr.append(String.format("| %s | %d |\n", entry.getKey(), entry.getValue()));
+            reportStr.append(String.format("| %17s | %10d |\n", entry.getKey(), entry.getValue()));
         }
 
         // Записываем отчет в файл
@@ -75,33 +75,44 @@ public class ReportGenerator {
 
         reportStr.append("== Общая информация\n\n");
         reportStr.append("[cols=\"Метрика,Значение\"]\n");
-        reportStr.append("|=======================|============================|\n");
-        reportStr.append(String.format("| Файл(-ы)              | `%s` |\n",
+        reportStr.append(String.format("|        Файл(-ы)       | `%5s` |\n",
             argumentAnalyzer.sourceList().toString()));
-        reportStr.append(String.format("| Начальная дата        | %s |\n",
-            argumentAnalyzer.from() != null ? argumentAnalyzer.from() : "-"));
-        reportStr.append(String.format("| Конечная дата         | %s |\n",
+        reportStr.append(String.format("|    Начальная дата     |   %10s   |\n",
+            argumentAnalyzer.from() != null ? argumentAnalyzer.from() : "    -    "));
+        reportStr.append(String.format("|    Конечная дата      |   %10s   |\n",
             argumentAnalyzer.to() != null ? argumentAnalyzer.to() : "     -    "));
-        reportStr.append(String.format("| Количество запросов   | %d |\n", report.totalRequests()));
-        reportStr.append(String.format("| Средний размер ответа  | %.2fb |\n", report.averageResponseSize()));
-        reportStr.append(String.format("| 95p размера ответа     | %.2fb |\n", report.percentile95ResponseSize()));
-        reportStr.append(String.format("| Кол-во уникальных IP   | %d |\n", report.uniqueIPCount()));
+        reportStr.append(String.format("|  Количество запросов  |   %8d     |\n", report.totalRequests()));
+        reportStr.append(String.format("| Средний размер ответа |   %8.2fb   |\n", report.averageResponseSize()));
+        reportStr.append(String.format("|   95p размера ответа  |    %8.2fb   |\n", report.percentile95ResponseSize()));
+        reportStr.append(String.format("|  Кол-во уникальных IP |  %8d      |\n", report.uniqueIPCount()));
 
         reportStr.append("\n== Запрашиваемые ресурсы\n");
         reportStr.append("[cols=\"Ресурс,Количество\"]\n");
-        reportStr.append("|=======================|============================|\n");
         report.resourcesCounter().forEach((resource, count) ->
-            reportStr.append(String.format("| %s | %d |\n", resource.toString(), count))
+            reportStr.append(String.format("| %s | %-9d |\n", resource, count))
         );
 
         reportStr.append("\n== Коды ответа\n");
         reportStr.append("[cols=\"Код,Имя,Количество\"]\n");
-        reportStr.append("|=======================|============================|\n");
 
         report.statusCodesCounter().forEach((code, count) -> {
             String description = statusCode.getDescription(code);
-            reportStr.append(String.format("| %s | %s | %d |\n", code, description, count));
+            reportStr.append(String.format("| %-3s | %-14s | %-10d |\n", code, description, count));
         });
+
+        reportStr.append("\n== Статистика по User-Agent\n");
+        reportStr.append("[cols=\"User-Agent,Количество\"]\n");
+
+        for (Map.Entry<String, Integer> entry : report.userAgentCounter()) {
+            reportStr.append(String.format("| %45s | %10d |\n", entry.getKey(), entry.getValue()));
+        }
+
+        reportStr.append("\n== Статистика по IP-адресам\n");
+        reportStr.append("[cols=\"IP-адрес,Количество\"]\n");
+
+        for (Map.Entry<String, Integer> entry : report.ipAddressCounts()) {
+            reportStr.append(String.format("| %17s | %10d |\n", entry.getKey(), entry.getValue()));
+        }
 
         // Записываем отчет в файл
         writeToFile("report.adoc", reportStr.toString());
