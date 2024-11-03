@@ -2,8 +2,11 @@ package backend.academy;
 
 import backend.academy.enums.OutputFormat;
 import backend.academy.enums.ParseState;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,6 +67,10 @@ public class ArgumentAnalyzer {
                 default -> throw new IllegalStateException("Unexpected parse state: " + parseState);
             }
         }
+
+        List<LogSource> updatedSources = updateSourceListWithLogFiles();
+        sourceList.clear();
+        sourceList.addAll(updatedSources);
     }
 
     private LogSource detectPathType(String pathString) {
@@ -84,5 +91,30 @@ public class ArgumentAnalyzer {
         }
 
         return null;
+    }
+
+    private List<LogSource> updateSourceListWithLogFiles() {
+        List<LogSource> updatedSources = new ArrayList<>();
+
+        for (LogSource source : sourceList) {
+            if (source.getType() == LogSource.LogType.PATH) {
+                Path path = Paths.get(source.getPath());
+                if (Files.isDirectory(path)) {
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.log")) {
+                        for (Path entry : stream) {
+                            updatedSources.add(new LogSource(entry.toString(), LogSource.LogType.PATH));
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error reading directory: " + e.getMessage());
+                    }
+                } else {
+                    updatedSources.add(source);
+                }
+            } else {
+                updatedSources.add(source);
+            }
+        }
+
+        return updatedSources;
     }
 }
