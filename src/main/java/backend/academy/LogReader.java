@@ -25,16 +25,9 @@ public class LogReader {
                 logRecords.addAll(readFromUrl(source.getPath()));
             } else if (source.getType() == LogSource.LogType.PATH) {
                 Path logPath = Paths.get(source.getPath());
-                if (Files.isDirectory(logPath)) {
-                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(logPath, "*.log")) {
-                        for (Path entry : stream) {
-                            logRecords.addAll(parseLogEntries(Files.readAllLines(entry)));
-                        }
-                    }
-                } else {
-                    if (logPath.toString().endsWith(".log")) {
-                        logRecords.addAll(parseLogEntries(Files.readAllLines(logPath)));
-                    }
+
+                if (logPath.toString().endsWith(".log")) {
+                    logRecords.addAll(parseLogEntries(Files.readAllLines(logPath)));
                 }
             }
         }
