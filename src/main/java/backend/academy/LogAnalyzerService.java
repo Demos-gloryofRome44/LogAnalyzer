@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LogAnalyzerService {
 
@@ -19,7 +20,7 @@ public class LogAnalyzerService {
         Set<String> uniqueIPs = new HashSet<>();
 
         for (LogRecord record : logRecords) {
-            resourcesCounter.put(record.request(), resourcesCounter.getOrDefault(record.request(), 0) + 1);
+            resourcesCounter.put(record.getResourcePath(), resourcesCounter.getOrDefault(record.getResourcePath(), 0) + 1);
             statusCodesCounter.put(record.status().toString(), statusCodesCounter.getOrDefault(record.status().toString(), 0) + 1);
             responseSizes.add(record.bodyBytesSent());
             uniqueIPs.add(record.remoteAddr());
@@ -33,5 +34,28 @@ public class LogAnalyzerService {
 
         return new LogReport(totalRequests, resourcesCounter, statusCodesCounter,
             averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
+    }
+
+    private boolean isMatch(LogRecord record, String field, String value) {
+        switch (field.toLowerCase()) {
+            case "method":
+                return record.request().startsWith(value);
+            case "status":
+                return record.status().toString().equals(value);
+            case "remoteaddr":
+                return record.remoteAddr().equals(value);
+            default:
+                return false;
+        }
+    }
+
+    public List<LogRecord> filterLogs(List<LogRecord> logRecords, String filterField, String filterValue) {
+        if (filterField == null || filterValue == null) {
+            return logRecords; // Если фильтры не заданы, возвращаем все записи
+        }
+
+        return logRecords.stream()
+            .filter(record -> isMatch(record, filterField, filterValue))
+            .collect(Collectors.toList());
     }
 }
