@@ -1,7 +1,7 @@
 package backend.academy.log;
 
-import lombok.Getter;
 import java.nio.file.Paths;
+import lombok.Getter;
 
 @Getter
 public class LogSource {

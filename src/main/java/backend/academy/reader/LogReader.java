@@ -19,6 +19,13 @@ public class LogReader {
         throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
     }
 
+    /**
+     * Читает лог-файлы из указанных источников и возвращает список записей логов.
+     *
+     * @param sources список источников логов (файлы или URL)
+     * @return список записей логов, прочитанных из источников
+     * @throws IOException если происходит ошибка при чтении файлов или подключения к URL
+     */
     public static List<LogRecord> readLogFiles(List<LogSource> sources) throws IOException {
         List<LogRecord> logRecords = new ArrayList<>();
 
@@ -37,6 +44,13 @@ public class LogReader {
         return logRecords;
     }
 
+    /**
+     * Читает записи логов из указанного URL-адреса.
+     *
+     * @param urlString строка, представляющая URL-адрес
+     * @return список записей логов, прочитанных из URL
+     * @throws IOException если происходит ошибка при подключении к URL или чтении данных
+     */
     private static List<LogRecord> readFromUrl(String urlString) throws IOException {
         List<LogRecord> records = new ArrayList<>();
 
@@ -56,6 +70,12 @@ public class LogReader {
         return records;
     }
 
+    /**
+     * Парсит записи логов из списка строк.
+     *
+     * @param entries список строк, представляющих записи логов
+     * @return список записей логов, созданных из строк
+     */
     public static List<LogRecord> parseLogEntries(List<String> entries) {
         List<LogRecord> records = new ArrayList<>();
 

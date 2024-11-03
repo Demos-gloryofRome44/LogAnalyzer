@@ -2,7 +2,6 @@ package backend.academy.samples;
 
 import backend.academy.argument.ArgumentAnalyzer;
 import backend.academy.enums.OutputFormat;
-import backend.academy.log.LogRecord;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
