@@ -3,6 +3,7 @@ package backend.academy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Getter
@@ -11,6 +12,7 @@ public class LogReport {
     private final int totalRequests;
     private final Map<String, Integer> resourcesCounter;
     private final Map<String, Integer> statusCodesCounter;
+    Map<String, Integer> userAgentCounter;
     private final double averageResponseSize;
     private final double percentile95ResponseSize;
     private final int uniqueIPCount;

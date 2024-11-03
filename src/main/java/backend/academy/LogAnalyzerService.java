@@ -15,6 +15,7 @@ public class LogAnalyzerService {
         int totalRequests = logRecords.size();
         Map<String, Integer> resourcesCounter = new HashMap<>();
         Map<String, Integer> statusCodesCounter = new HashMap<>();
+        Map<String, Integer> userAgentCounter = new HashMap<>();
 
         List<Long> responseSizes = new ArrayList<>();
         Set<String> uniqueIPs = new HashSet<>();
@@ -24,6 +25,8 @@ public class LogAnalyzerService {
             statusCodesCounter.put(record.status().toString(), statusCodesCounter.getOrDefault(record.status().toString(), 0) + 1);
             responseSizes.add(record.bodyBytesSent());
             uniqueIPs.add(record.remoteAddr());
+            String userAgent = record.userAgent();
+            userAgentCounter.put(userAgent, userAgentCounter.getOrDefault(userAgent, 0) + 1);
         }
 
         double averageResponseSize = responseSizes.stream().mapToLong(Long::longValue).average().orElse(0);
@@ -32,7 +35,7 @@ public class LogAnalyzerService {
         int size95PercentileIndex = (int) Math.ceil(0.95 * responseSizes.size()) - 1; // 95th percentile
         double percentile95ResponseSize = size95PercentileIndex >= 0 ? responseSizes.get(size95PercentileIndex) : 0;
 
-        return new LogReport(totalRequests, resourcesCounter, statusCodesCounter,
+        return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, userAgentCounter,
             averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
     }
 
