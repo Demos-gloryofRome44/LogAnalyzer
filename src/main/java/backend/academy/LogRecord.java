@@ -1,5 +1,6 @@
 package backend.academy;
 
+import lombok.ToString;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -17,4 +18,9 @@ public record LogRecord(String remoteAddr, OffsetDateTime timeLocal,
             + "\"(?<request>[^\"]+)\" (?<status>\\d+) (?<bodyBytesSent>\\d+) "
             + "\"(?<referer>[^\"]*)\" \"(?<userAgent>[^\"]*)\"$"
     );
+
+    public String getResourcePath() {
+        String[] parts = request.split(" ");
+        return parts.length > 1 ? parts[1] : request;
+    }
 }
