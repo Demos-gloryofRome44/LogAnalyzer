@@ -14,20 +14,23 @@ import java.util.List;
 
 @Getter
 public class ArgumentAnalyzer {
-    private static final List<String> AVAILABLE_ARGS = Arrays.asList("--path", "--from", "--to", "--format");
+    private static final List<String> AVAILABLE_ARGS = Arrays.asList("--path", "--from", "--to", "--format",
+        "--filter-field", "--filter-value");
 
     private LocalDate from = null;
     private LocalDate to = null;
     private OutputFormat format = OutputFormat.MARKDOWN;
     private final List<LogSource> sourceList = new ArrayList<>();
     private final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+    private String filterField = null;
+    private String filterValue = null;
 
     public void analyzeArguments(String[] args) {
         ParseState parseState = null;
 
         for (String arg : args) {
             if (AVAILABLE_ARGS.contains(arg)) {
-                parseState = ParseState.valueOf(arg.substring(2).toUpperCase());
+                parseState = ParseState.valueOf(arg.substring(2).toUpperCase().replace("-", "_"));
                 continue;
             }
 
@@ -54,6 +57,8 @@ public class ArgumentAnalyzer {
                         throw new IllegalArgumentException("Invalid format specified: " + arg);
                     }
                 }
+                case FILTER_FIELD -> filterField = arg;
+                case FILTER_VALUE -> filterValue = arg;
                 default -> throw new IllegalStateException("Unexpected parse state: " + parseState);
             }
         }

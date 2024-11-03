@@ -4,5 +4,7 @@ public enum ParseState {
     PATH,
     FROM,
     TO,
-    FORMAT
+    FORMAT,
+    FILTER_FIELD,
+    FILTER_VALUE
 }
