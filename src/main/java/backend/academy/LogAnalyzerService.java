@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class LogAnalyzerService {
@@ -53,29 +54,6 @@ public class LogAnalyzerService {
 
         return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, topUserAgent,
             topIpAddress, averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
-    }
-
-    private boolean isMatch(LogRecord logRecord, String field, String value) {
-        switch (field.toLowerCase()) {
-            case "method":
-                return logRecord.request().startsWith(value);
-            case "status":
-                return logRecord.status().toString().equals(value);
-            case "remoteaddr":
-                return logRecord.remoteAddr().equals(value);
-            default:
-                return false;
-        }
-    }
-
-    public List<LogRecord> filterLogs(List<LogRecord> logRecords, String filterField, String filterValue) {
-        if (filterField == null || filterValue == null) {
-            return logRecords; // Если фильтры не заданы, возвращаем все записи
-        }
-
-        return logRecords.stream()
-            .filter(logRecord -> isMatch(logRecord, filterField, filterValue))
-            .collect(Collectors.toList());
     }
 
     private List<Map.Entry<String, Integer>> getTop(Map<String, Integer> userAgentCounts, int limit) {
