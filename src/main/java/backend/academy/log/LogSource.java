@@ -1,4 +1,4 @@
-package backend.academy;
+package backend.academy.log;
 
 import java.nio.file.Paths;
 

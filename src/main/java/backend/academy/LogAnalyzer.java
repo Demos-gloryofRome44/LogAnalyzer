@@ -1,6 +1,13 @@
 package backend.academy;
 
+import backend.academy.argument.ArgumentAnalyzer;
 import backend.academy.enums.OutputFormat;
+import backend.academy.log.FilterLog;
+import backend.academy.log.LogAnalyzerService;
+import backend.academy.log.LogRecord;
+import backend.academy.reader.LogReader;
+import backend.academy.report.LogReport;
+import backend.academy.report.ReportGenerator;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
@@ -27,8 +34,9 @@ public class LogAnalyzer {
             String filterValue = argumentsAnalyzer.filterValue();
 
             LogAnalyzerService service = new LogAnalyzerService();
+            FilterLog filter = new FilterLog();
             // применяем фильтрацию перед началом анализа
-            logRecords = service.filterLogs(logRecords, filterField, filterValue);
+            logRecords = filter.filterLogs(logRecords, filterField, filterValue);
 
             LogReport report = service.analyzeLogs(logRecords);
 

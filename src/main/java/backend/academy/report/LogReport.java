@@ -1,4 +1,4 @@
-package backend.academy;
+package backend.academy.report;
 
 import java.util.List;
 import java.util.Map;

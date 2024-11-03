@@ -1,4 +1,4 @@
-package backend.academy;
+package backend.academy.log;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;

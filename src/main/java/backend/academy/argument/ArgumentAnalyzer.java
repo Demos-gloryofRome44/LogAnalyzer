@@ -1,7 +1,8 @@
-package backend.academy;
+package backend.academy.argument;
 
 import backend.academy.enums.OutputFormat;
 import backend.academy.enums.ParseState;
+import backend.academy.log.LogSource;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

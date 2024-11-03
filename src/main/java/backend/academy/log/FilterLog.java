@@ -1,9 +1,10 @@
-package backend.academy;
+package backend.academy.log;
 
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("all")
 public class FilterLog {
     private boolean isMatch(LogRecord logRecord, String field, String value) {
         String regexValue = value.replace("*", ".*");

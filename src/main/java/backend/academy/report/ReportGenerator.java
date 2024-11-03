@@ -1,5 +1,6 @@
-package backend.academy;
+package backend.academy.report;
 
+import backend.academy.argument.ArgumentAnalyzer;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

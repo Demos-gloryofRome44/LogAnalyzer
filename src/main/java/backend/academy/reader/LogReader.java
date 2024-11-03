@@ -1,11 +1,13 @@
-package backend.academy;
+package backend.academy.reader;
 
+import backend.academy.log.LogParser;
+import backend.academy.log.LogRecord;
+import backend.academy.log.LogSource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
