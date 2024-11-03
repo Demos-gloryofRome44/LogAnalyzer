@@ -1,34 +1,44 @@
 package backend.academy;
 
 import backend.academy.enums.OutputFormat;
-import lombok.experimental.UtilityClass;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 
+@SuppressWarnings("uncommentedmain")
 @UtilityClass
 public class LogAnalyzer {
-
+    /**
+     * Главный метод приложения, который выполняет анализ логов.
+     *
+     * @param args аргументы командной строки
+     */
     public static void main(String[] args) {
         ArgumentAnalyzer argumentsAnalyzer = new ArgumentAnalyzer();
+        PrintStream out = System.out;
 
         try {
             argumentsAnalyzer.analyzeArguments(args);
 
             List<LogRecord> logRecords = LogReader.readLogFiles(argumentsAnalyzer.sourceList());
 
+            String filterField = argumentsAnalyzer.filterField();
+            String filterValue = argumentsAnalyzer.filterValue();
+
             LogAnalyzerService service = new LogAnalyzerService();
+            // применяем фильтрацию перед началом анализа
+            logRecords = service.filterLogs(logRecords, filterField, filterValue);
+
             LogReport report = service.analyzeLogs(logRecords);
 
             ReportGenerator generator = new ReportGenerator();
             String output = argumentsAnalyzer.format() == OutputFormat.ADOC
-                ? generator.generateAdocReport(report)
+                ? generator.generateAdocReport(report, argumentsAnalyzer)
                 : generator.generateMarkdownReport(report, argumentsAnalyzer);
 
-            System.out.println(output);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
+            out.println(output);
+        } catch (IOException | IllegalArgumentException e) {
             System.err.println(e.getMessage());
         }
     }

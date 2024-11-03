@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LogAnalyzerService {
+    private static final double PERCENTILE_95 = 0.95;
+    private static final int TOP_LIMIT = 3;
 
     public LogReport analyzeLogs(List<LogRecord> logRecords) {
         int totalRequests = logRecords.size();
@@ -23,16 +25,18 @@ public class LogAnalyzerService {
         List<Long> responseSizes = new ArrayList<>();
         Set<String> uniqueIPs = new HashSet<>();
 
-        for (LogRecord record : logRecords) {
-            resourcesCounter.put(record.getResourcePath(), resourcesCounter.getOrDefault(record.getResourcePath(), 0) + 1);
-            statusCodesCounter.put(record.status().toString(), statusCodesCounter.getOrDefault(record.status().toString(), 0) + 1);
-            responseSizes.add(record.bodyBytesSent());
-            uniqueIPs.add(record.remoteAddr());
+        for (LogRecord logRecord : logRecords) {
+            resourcesCounter.put(logRecord.getResourcePath(),
+                resourcesCounter.getOrDefault(logRecord.getResourcePath(), 0) + 1);
+            statusCodesCounter.put(logRecord.status().toString(),
+                statusCodesCounter.getOrDefault(logRecord.status().toString(), 0) + 1);
+            responseSizes.add(logRecord.bodyBytesSent());
+            uniqueIPs.add(logRecord.remoteAddr());
 
-            String userAgent = record.userAgent();
+            String userAgent = logRecord.userAgent();
             userAgentCounter.put(userAgent, userAgentCounter.getOrDefault(userAgent, 0) + 1);
 
-            String remoteAddr = record.remoteAddr();
+            String remoteAddr = logRecord.remoteAddr();
             ipAddressCounter.put(remoteAddr, ipAddressCounter.getOrDefault(remoteAddr, 0) + 1);
 
             uniqueIPs.add(remoteAddr);
@@ -41,24 +45,24 @@ public class LogAnalyzerService {
         double averageResponseSize = responseSizes.stream().mapToLong(Long::longValue).average().orElse(0);
 
         Collections.sort(responseSizes);
-        int size95PercentileIndex = (int) Math.ceil(0.95 * responseSizes.size()) - 1; // 95th percentile
+        int size95PercentileIndex = (int) Math.ceil(PERCENTILE_95 * responseSizes.size()) - 1; // 95th percentile
         double percentile95ResponseSize = size95PercentileIndex >= 0 ? responseSizes.get(size95PercentileIndex) : 0;
 
-        topUserAgent = getTop(userAgentCounter, 3);
-        topIpAddress = getTop(ipAddressCounter, 3);
+        topUserAgent = getTop(userAgentCounter, TOP_LIMIT);
+        topIpAddress = getTop(ipAddressCounter, TOP_LIMIT);
 
         return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, topUserAgent,
             topIpAddress, averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
     }
 
-    private boolean isMatch(LogRecord record, String field, String value) {
+    private boolean isMatch(LogRecord logRecord, String field, String value) {
         switch (field.toLowerCase()) {
             case "method":
-                return record.request().startsWith(value);
+                return logRecord.request().startsWith(value);
             case "status":
-                return record.status().toString().equals(value);
+                return logRecord.status().toString().equals(value);
             case "remoteaddr":
-                return record.remoteAddr().equals(value);
+                return logRecord.remoteAddr().equals(value);
             default:
                 return false;
         }
@@ -70,7 +74,7 @@ public class LogAnalyzerService {
         }
 
         return logRecords.stream()
-            .filter(record -> isMatch(record, filterField, filterValue))
+            .filter(logRecord -> isMatch(logRecord, filterField, filterValue))
             .collect(Collectors.toList());
     }
 

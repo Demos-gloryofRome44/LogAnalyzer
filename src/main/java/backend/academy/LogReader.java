@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogReader {
+    private LogReader() {
+        throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
+    }
+
     public static List<LogRecord> readLogFiles(List<LogSource> sources) throws IOException {
         List<LogRecord> logRecords = new ArrayList<>();
 
@@ -47,9 +51,9 @@ public class LogReader {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
             String line;
             while ((line = in.readLine()) != null) {
-                LogRecord record = LogParser.parseLogLine(line);
-                if (record != null) {
-                    records.add(record);
+                LogRecord parseRecord = LogParser.parseLogLine(line);
+                if (parseRecord != null) {
+                    records.add(parseRecord);
                 }
             }
         }
@@ -61,9 +65,9 @@ public class LogReader {
         List<LogRecord> records = new ArrayList<>();
 
         for (String entry : entries) {
-            LogRecord record = LogParser.parseLogLine(entry);
-            if (record != null) {
-                records.add(record);
+            LogRecord paseRecord = LogParser.parseLogLine(entry);
+            if (paseRecord != null) {
+                records.add(paseRecord);
             }
         }
 

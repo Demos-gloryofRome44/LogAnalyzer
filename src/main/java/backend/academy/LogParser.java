@@ -4,6 +4,9 @@ import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 
 public class LogParser {
+    private LogParser() {
+        throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
+    }
 
     public static LogRecord parseLogLine(String line) {
         Matcher matcher = LogRecord.LOG_PATTERN.matcher(line);

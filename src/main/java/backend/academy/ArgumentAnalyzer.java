@@ -2,15 +2,17 @@ package backend.academy;
 
 import backend.academy.enums.OutputFormat;
 import backend.academy.enums.ParseState;
-import lombok.Getter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.*;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class ArgumentAnalyzer {
