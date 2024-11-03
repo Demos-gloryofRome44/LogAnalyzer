@@ -20,7 +20,7 @@ public class FilterLog {
 
         switch (field.toLowerCase()) {
             case "method":
-                return Pattern.matches(regexValue, logRecord.request());
+                return logRecord.request().split(" ")[0].toUpperCase().matches(regexValue);
             case "status":
                 return logRecord.status().toString().matches(regexValue);
             case "remoteaddr":
