@@ -23,10 +23,10 @@ public class LogReader {
         List<LogRecord> logRecords = new ArrayList<>();
 
         for (LogSource source : sources) {
-            if (source.getType() == LogSource.LogType.URI) {
-                logRecords.addAll(readFromUrl(source.getPath()));
-            } else if (source.getType() == LogSource.LogType.PATH) {
-                Path logPath = Paths.get(source.getPath());
+            if (source.type() == LogSource.LogType.URI) {
+                logRecords.addAll(readFromUrl(source.path()));
+            } else if (source.type() == LogSource.LogType.PATH) {
+                Path logPath = Paths.get(source.path());
 
                 if (logPath.toString().endsWith(".log")) {
                     logRecords.addAll(parseLogEntries(Files.readAllLines(logPath)));

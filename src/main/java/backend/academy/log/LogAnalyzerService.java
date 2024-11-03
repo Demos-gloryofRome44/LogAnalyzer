@@ -14,6 +14,12 @@ public class LogAnalyzerService {
     private static final double PERCENTILE_95 = 0.95;
     private static final int TOP_LIMIT = 3;
 
+    /**
+     * Анализирует записи логов и генерирует отчет.
+     *
+     * @param logRecords список записей логов для анализа
+     * @return объект LogReport, содержащий результаты анализа
+     */
     public LogReport analyzeLogs(List<LogRecord> logRecords) {
         int totalRequests = logRecords.size();
         Map<String, Integer> resourcesCounter = new HashMap<>();
@@ -56,6 +62,13 @@ public class LogAnalyzerService {
             topIpAddress, averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
     }
 
+    /**
+     * Получает список верхних значений из заданной стастики.
+     *
+     * @param userAgentCounts нахождение топов для выбранной статистики
+     * @param limit максимальное количество верхних значений для получения
+     * @return список пар (ключ-значение) с верхними значениями
+     */
     private List<Map.Entry<String, Integer>> getTop(Map<String, Integer> userAgentCounts, int limit) {
         return userAgentCounts.entrySet()
             .stream()

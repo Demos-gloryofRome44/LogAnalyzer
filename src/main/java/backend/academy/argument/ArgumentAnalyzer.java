@@ -31,6 +31,12 @@ public class ArgumentAnalyzer {
     private String filterField = null;
     private String filterValue = null;
 
+    /**
+     * Анализирует аргументы командной строки и устанавливает соответствующие поля.
+     *
+     * @param args массив строк, представляющий аргументы командной строки
+     * @throws IllegalArgumentException если передан неожиданный аргумент или неверный формат
+     */
     public void analyzeArguments(String[] args) {
         ParseState parseState = null;
 
@@ -74,6 +80,12 @@ public class ArgumentAnalyzer {
         sourceList.addAll(updatedSources);
     }
 
+    /**
+     * Определяет тип пути (локальный или URI) на основе переданной строки.
+     *
+     * @param pathString строка, представляющая путь или URI
+     * @return объект LogSource с определенным типом или null, если путь недействителен
+     */
     private LogSource detectPathType(String pathString) {
         if (pathString.startsWith("http") || pathString.startsWith("https")) {
             try {
@@ -94,12 +106,18 @@ public class ArgumentAnalyzer {
         return null;
     }
 
+    /**
+     * Обновляет список источников логов если передана директория,
+     * обнавляя все файлы с расширением .log из указанной директории.
+     *
+     * @return обновленный список источников логов
+     */
     private List<LogSource> updateSourceListWithLogFiles() {
         List<LogSource> updatedSources = new ArrayList<>();
 
         for (LogSource source : sourceList) {
-            if (source.getType() == LogSource.LogType.PATH) {
-                Path path = Paths.get(source.getPath());
+            if (source.type() == LogSource.LogType.PATH) {
+                Path path = Paths.get(source.path());
                 if (Files.isDirectory(path)) {
                     try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.log")) {
                         for (Path entry : stream) {

@@ -8,6 +8,12 @@ public class LogParser {
         throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
     }
 
+    /**
+     * Парсит строку лога и создает объект LogRecord.
+     *
+     * @param line строка, представляющая запись лога
+     * @return объект LogRecord, созданный из строки лога, или null, если строка не соответствует формату
+     */
     public static LogRecord parseLogLine(String line) {
         Matcher matcher = LogRecord.LOG_PATTERN.matcher(line);
         if (matcher.find()) {
