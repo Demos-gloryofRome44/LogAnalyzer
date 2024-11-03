@@ -16,6 +16,9 @@ public class LogAnalyzerService {
         Map<String, Integer> resourcesCounter = new HashMap<>();
         Map<String, Integer> statusCodesCounter = new HashMap<>();
         Map<String, Integer> userAgentCounter = new HashMap<>();
+        Map<String, Integer> ipAddressCounter = new HashMap<>();
+        List<Map.Entry<String, Integer>> topUserAgent;
+        List<Map.Entry<String, Integer>> topIpAddress;
 
         List<Long> responseSizes = new ArrayList<>();
         Set<String> uniqueIPs = new HashSet<>();
@@ -25,8 +28,14 @@ public class LogAnalyzerService {
             statusCodesCounter.put(record.status().toString(), statusCodesCounter.getOrDefault(record.status().toString(), 0) + 1);
             responseSizes.add(record.bodyBytesSent());
             uniqueIPs.add(record.remoteAddr());
+
             String userAgent = record.userAgent();
             userAgentCounter.put(userAgent, userAgentCounter.getOrDefault(userAgent, 0) + 1);
+
+            String remoteAddr = record.remoteAddr();
+            ipAddressCounter.put(remoteAddr, ipAddressCounter.getOrDefault(remoteAddr, 0) + 1);
+
+            uniqueIPs.add(remoteAddr);
         }
 
         double averageResponseSize = responseSizes.stream().mapToLong(Long::longValue).average().orElse(0);
@@ -35,8 +44,11 @@ public class LogAnalyzerService {
         int size95PercentileIndex = (int) Math.ceil(0.95 * responseSizes.size()) - 1; // 95th percentile
         double percentile95ResponseSize = size95PercentileIndex >= 0 ? responseSizes.get(size95PercentileIndex) : 0;
 
-        return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, userAgentCounter,
-            averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
+        topUserAgent = getTop(userAgentCounter, 3);
+        topIpAddress = getTop(ipAddressCounter, 3);
+
+        return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, topUserAgent,
+            topIpAddress, averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
     }
 
     private boolean isMatch(LogRecord record, String field, String value) {
@@ -59,6 +71,14 @@ public class LogAnalyzerService {
 
         return logRecords.stream()
             .filter(record -> isMatch(record, filterField, filterValue))
+            .collect(Collectors.toList());
+    }
+
+    private List<Map.Entry<String, Integer>> getTop(Map<String, Integer> userAgentCounts, int limit) {
+        return userAgentCounts.entrySet()
+            .stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .limit(limit)
             .collect(Collectors.toList());
     }
 }

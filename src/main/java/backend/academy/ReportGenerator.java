@@ -52,7 +52,15 @@ public class ReportGenerator {
         reportStr.append("| User-Agent               | Количество     |\n");
         reportStr.append("|:-------------------------:|---------------:|\n");
 
-        for (Map.Entry<String, Integer> entry : report.userAgentCounter.entrySet()) {
+        for (Map.Entry<String, Integer> entry : report.userAgentCounter()) {
+            reportStr.append(String.format("| %s | %d |\n", entry.getKey(), entry.getValue()));
+        }
+
+        reportStr.append("\n#### Статистика по IP-адресам\n");
+        reportStr.append("| IP-адрес                 | Количество     |\n");
+        reportStr.append("|:-------------------------:|---------------:|\n");
+
+        for (Map.Entry<String, Integer> entry : report.ipAddressCounts()) {
             reportStr.append(String.format("| %s | %d |\n", entry.getKey(), entry.getValue()));
         }
 
