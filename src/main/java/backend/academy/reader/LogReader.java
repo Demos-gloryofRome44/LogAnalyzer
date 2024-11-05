@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LogReader {
     private LogReader() {
@@ -28,15 +30,30 @@ public class LogReader {
      */
     public static List<LogRecord> readLogFiles(List<LogSource> sources) throws IOException {
         List<LogRecord> logRecords = new ArrayList<>();
+        List<LogRecord> update = new ArrayList<>();
 
         for (LogSource source : sources) {
             if (source.type() == LogSource.LogType.URI) {
                 logRecords.addAll(readFromUrl(source.path()));
             } else if (source.type() == LogSource.LogType.PATH) {
-                Path logPath = Paths.get(source.path());
+                String pathString = source.path();
+                Path logPath = Paths.get(pathString);
+                if (pathString.contains("**")) {
+                    // Разделяем путь на базовую часть и имя файла
+                    String regular = "\\*\\*";
+                    String basePath = pathString.split(regular)[0]; // Путь до звездочек
+                    String fileName = pathString.split(regular)[1].replace("/", ""); // Имя файла
 
-                if (logPath.toString().endsWith(".log")) {
-                    logRecords.addAll(parseLogEntries(Files.readAllLines(logPath)));
+                    List<Path> logFiles = findLogFiles(basePath, fileName);
+
+                    for (Path logFile : logFiles) {
+                        logRecords.addAll(parseLogEntries(Files.readAllLines(logFile)));
+                    }
+                } else {
+                    // Если это обычный файл или директория(раннее обработанная)
+                    if (Files.isRegularFile(logPath) && logPath.toString().endsWith(".log")) {
+                        logRecords.addAll(parseLogEntries(Files.readAllLines(logPath)));
+                    }
                 }
             }
         }
@@ -87,5 +104,29 @@ public class LogReader {
         }
 
         return records;
+    }
+
+    /**
+     * Нахождение конкретного файла в поддиректориях заданой директории
+     *
+     * @param basePath Путь к директории, в которой будет выполняться поиск.
+     * @param fileName Имя файла, который нужно найти (можно использовать шаблоны).
+     * @return Список путей к найденным файлам.
+     * @throws IOException Если произошла ошибка ввода-вывода при доступе к файловой системе.
+     */
+    public static List<Path> findLogFiles(String basePath, String fileName) throws IOException {
+        List<Path> logFiles = new ArrayList<>();
+
+        // Используем Files.walk для рекурсивного обхода директорий
+        try (Stream<Path> paths = Files.walk(Paths.get(basePath))) {
+            logFiles = paths
+                .filter(Files::isRegularFile) // Фильтруем только файлы
+                .filter(path -> path.getFileName().toString().equals(fileName)) // Фильтруем по имени файла
+                .collect(Collectors.toList()); // Собираем найденные файлы в список
+        } catch (IOException e) {
+            System.err.println("Caught an IOException: " + e.getMessage());
+        }
+
+        return logFiles;
     }
 }

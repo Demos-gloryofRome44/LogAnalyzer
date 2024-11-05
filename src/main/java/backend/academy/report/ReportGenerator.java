@@ -35,13 +35,13 @@ public class ReportGenerator {
 
         responseCodes(reportStr, report);
 
-        reportStr.append("\n#### Статистика по User-Agent\n");
+        reportStr.append("\n#### Статистика по самым частым User-Agent\n");
         reportStr.append("|                   User-Agent                  | Количество |\n");
         reportStr.append("|:---------------------------------------------:|-----------:|\n");
 
         statisticsUserAgent(reportStr, report);
 
-        reportStr.append("\n#### Статистика по IP-адресам\n");
+        reportStr.append("\n#### Статистика по самым частым IP-адресам\n");
         reportStr.append("|      IP-адрес     | Количество |\n");
         reportStr.append("|:-----------------:|-----------:|\n");
 
@@ -69,12 +69,12 @@ public class ReportGenerator {
 
         responseCodes(reportStr, report);
 
-        reportStr.append("\n== Статистика по User-Agent\n");
+        reportStr.append("\n== Статистика по самым частым User-Agent\n");
         reportStr.append("[cols=\"User-Agent,Количество\"]\n");
 
         statisticsUserAgent(reportStr, report);
 
-        reportStr.append("\n== Статистика по IP-адресам\n");
+        reportStr.append("\n== Статистика по самым частым IP-адресам\n");
         reportStr.append("[cols=\"IP-адрес,Количество\"]\n");
 
         staticsIpAddress(reportStr, report);
