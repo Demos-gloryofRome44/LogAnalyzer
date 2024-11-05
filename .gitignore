@@ -20,4 +20,5 @@ dependency-reduced-pom.xml
 .bsp
 
 ### log files ###
+*.log
 hs_err_pid*
