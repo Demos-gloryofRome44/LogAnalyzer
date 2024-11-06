@@ -7,6 +7,7 @@ import backend.academy.log.LogAnalyzerService;
 import backend.academy.log.LogRecord;
 import backend.academy.reader.LogReader;
 import backend.academy.report.LogReport;
+import backend.academy.report.ReportFactory;
 import backend.academy.report.ReportGenerator;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -40,10 +41,13 @@ public class LogAnalyzer {
 
             LogReport report = service.analyzeLogs(logRecords);
 
-            ReportGenerator generator = new ReportGenerator();
+            /*ReportGenerator generator = new ReportGenerator();
             String output = argumentsAnalyzer.format() == OutputFormat.ADOC
                 ? generator.generateAdocReport(report, argumentsAnalyzer)
-                : generator.generateMarkdownReport(report, argumentsAnalyzer);
+                : generator.generateMarkdownReport(report, argumentsAnalyzer);*/
+            OutputFormat format = argumentsAnalyzer.format();
+            ReportGenerator generator = ReportFactory.createReportGenerator(format);
+            String output = generator.generateReport(report, argumentsAnalyzer);
 
             out.println(output);
         } catch (IOException | IllegalArgumentException e) {
