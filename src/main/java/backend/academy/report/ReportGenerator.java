@@ -8,84 +8,17 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class ReportGenerator {
+public abstract class ReportGenerator {
 
     private final StatusCode statusCode;
 
-    public ReportGenerator() {
+    protected ReportGenerator() {
         this.statusCode = new StatusCode();
     }
 
-    public String generateMarkdownReport(LogReport report, ArgumentAnalyzer argumentAnalyzer) throws IOException {
-        StringBuilder reportStr = new StringBuilder();
+    public abstract String generateReport(LogReport report, ArgumentAnalyzer argumentAnalyzer) throws IOException;
 
-        reportStr.append("#### Общая информация\n\n");
-        reportStr.append("|        Метрика        |    Значение    |\n");
-        reportStr.append("|:---------------------:|---------------:|\n");
-        generalInfo(reportStr, report, argumentAnalyzer);
-
-        reportStr.append("\n#### Запрашиваемые ресурсы\n");
-        reportStr.append("|        Ресурс        | Количество |\n");
-        reportStr.append("|:--------------------:|-----------:|\n");
-        requestedResources(reportStr, report);
-
-        reportStr.append("\n#### Коды ответа\n");
-        reportStr.append("| Код |       Имя      | Количество |\n");
-        reportStr.append("|:---:|:--------------:|-----------:|\n");
-
-        responseCodes(reportStr, report);
-
-        reportStr.append("\n#### Статистика по самым частым User-Agent\n");
-        reportStr.append("|                   User-Agent                  | Количество |\n");
-        reportStr.append("|:---------------------------------------------:|-----------:|\n");
-
-        statisticsUserAgent(reportStr, report);
-
-        reportStr.append("\n#### Статистика по самым частым IP-адресам\n");
-        reportStr.append("|      IP-адрес     | Количество |\n");
-        reportStr.append("|:-----------------:|-----------:|\n");
-
-        staticsIpAddress(reportStr, report);
-
-        // Записываем отчет в файл
-        writeToFile("report.md", reportStr.toString());
-
-        return reportStr.toString();
-    }
-
-    public String generateAdocReport(LogReport report, ArgumentAnalyzer argumentAnalyzer) throws IOException {
-        StringBuilder reportStr = new StringBuilder();
-
-        reportStr.append("== Общая информация\n\n");
-        reportStr.append("[cols=\"Метрика,Значение\"]\n");
-        generalInfo(reportStr, report, argumentAnalyzer);
-
-        reportStr.append("\n== Запрашиваемые ресурсы\n");
-        reportStr.append("[cols=\"Ресурс,Количество\"]\n");
-        requestedResources(reportStr, report);
-
-        reportStr.append("\n== Коды ответа\n");
-        reportStr.append("[cols=\"Код,Имя,Количество\"]\n");
-
-        responseCodes(reportStr, report);
-
-        reportStr.append("\n== Статистика по самым частым User-Agent\n");
-        reportStr.append("[cols=\"User-Agent,Количество\"]\n");
-
-        statisticsUserAgent(reportStr, report);
-
-        reportStr.append("\n== Статистика по самым частым IP-адресам\n");
-        reportStr.append("[cols=\"IP-адрес,Количество\"]\n");
-
-        staticsIpAddress(reportStr, report);
-
-        // Записываем отчет в файл
-        writeToFile("report.adoc", reportStr.toString());
-
-        return reportStr.toString();
-    }
-
-    private void writeToFile(String filename, String content) throws IOException {
+    protected void writeToFile(String filename, String content) throws IOException {
         String resourcesPath = "src/main/resources";
         File file = new File(resourcesPath, filename);
 
@@ -99,7 +32,7 @@ public class ReportGenerator {
         }
     }
 
-    private void generalInfo(StringBuilder reportStr, LogReport report, ArgumentAnalyzer argumentAnalyzer) {
+    protected void generalInfo(StringBuilder reportStr, LogReport report, ArgumentAnalyzer argumentAnalyzer) {
         reportStr.append(String.format("|        Файл(-ы)       | `%5s` |\n",
             argumentAnalyzer.sourceList().toString()));
         reportStr.append(String.format("|    Начальная дата     |   %10s   |\n",
@@ -112,26 +45,26 @@ public class ReportGenerator {
         reportStr.append(String.format("|  Кол-во уникальных IP |%9d       |\n", report.uniqueIPCount()));
     }
 
-    private void requestedResources(StringBuilder reportStr, LogReport report) {
+    protected void requestedResources(StringBuilder reportStr, LogReport report) {
         report.resourcesCounter().forEach((resource, count) ->
             reportStr.append(String.format("| %s | %-10d |\n", resource, count))
         );
     }
 
-    private void responseCodes(StringBuilder reportStr, LogReport report) {
+    protected void responseCodes(StringBuilder reportStr, LogReport report) {
         report.statusCodesCounter().forEach((code, count) -> {
             String description = statusCode.getDescription(code);
             reportStr.append(String.format("| %-3s | %-14s | %-10d |\n", code, description, count));
         });
     }
 
-    private void statisticsUserAgent(StringBuilder reportStr, LogReport report) {
+    protected void statisticsUserAgent(StringBuilder reportStr, LogReport report) {
         for (Map.Entry<String, Integer> entry : report.userAgentCounter()) {
             reportStr.append(String.format("| %45s | %10d |\n", entry.getKey(), entry.getValue()));
         }
     }
 
-    private void staticsIpAddress(StringBuilder reportStr, LogReport report) {
+    protected void staticsIpAddress(StringBuilder reportStr, LogReport report) {
         for (Map.Entry<String, Integer> entry : report.ipAddressCounts()) {
             reportStr.append(String.format("| %17s | %10d |\n", entry.getKey(), entry.getValue()));
         }
