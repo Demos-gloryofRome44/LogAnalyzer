@@ -75,7 +75,9 @@ public class ArgumentAnalyzer {
             }
         }
 
-        List<LogSource> updatedSources = updateSourceListWithLogFiles();
+        UpdateSourceList updateSourceList = new UpdateSourceList(sourceList);
+        // обновление списка файлов
+        List<LogSource> updatedSources = updateSourceList.updateSourceListWithLogFiles();
         sourceList.clear();
         sourceList.addAll(updatedSources);
     }
@@ -104,60 +106,5 @@ public class ArgumentAnalyzer {
         }
 
         return null;
-    }
-
-    /**
-     * Обновляет список источников логов если передана директория, шаблон файла, или шаблон пути
-     * обнавляя все файлы.
-     *
-     * @return обновленный список источников логов
-     */
-    private List<LogSource> updateSourceListWithLogFiles() throws IOException {
-        List<LogSource> updatedSources = new ArrayList<>();
-
-        for (LogSource source : sourceList) {
-            if (source.type() == LogSource.LogType.PATH) {
-                String sourcePath = source.path();
-                Path path = Paths.get(sourcePath);
-
-                if (source.path().contains("**")) { // нахождение файлов во всех поддиректориях
-                    String regular = "\\*\\*";
-                    String basePath = sourcePath.split(regular)[0]; // Путь до звездочек
-                    String fileName = sourcePath.split(regular)[1].replace("/", ""); // Имя файла
-
-                    List<Path> newFiles = FilesFinder.findLogFilesInDirectories(basePath, fileName);
-
-                    for (Path file : newFiles) {
-                        updatedSources.add(new LogSource(file.toString(), LogSource.LogType.PATH));
-                    }
-
-                } else if (source.path().endsWith("*")) { // Добавление файлов удовлетворяющих шаблону
-                    String modifiedPath = source.path().replace("*", "");
-
-                    List<Path> newFiles = FilesFinder.findLogFileOfSample(modifiedPath);
-
-                    for (Path file : newFiles) {
-                        updatedSources.add(new LogSource(file.toString(), LogSource.LogType.PATH));
-                    }
-
-                } else if (Files.isDirectory(path)) { // добавление всех файлов .log из директории
-
-                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.log")) {
-                        for (Path entry : stream) {
-                            updatedSources.add(new LogSource(entry.toString(), LogSource.LogType.PATH));
-                        }
-                    } catch (IOException e) {
-                        System.err.println("Error reading directory: " + e.getMessage());
-                    }
-
-                } else {
-                    updatedSources.add(source);
-                }
-            } else {
-                updatedSources.add(source);
-            }
-        }
-
-        return updatedSources;
     }
 }
