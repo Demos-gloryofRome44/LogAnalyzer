@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class LogReader {
     private LogReader() {
@@ -39,7 +40,15 @@ public class LogReader {
 
                 // Проверяем, является ли указанный путь обычным файлом и имеет ли он расширение .log
                 if (Files.isRegularFile(logPath) && logPath.toString().endsWith(".log")) {
-                    logRecords.addAll(parseLogEntries(Files.readAllLines(logPath)));
+                    // Используем потоковое чтение для экономии памяти
+                    try (Stream<String> lines = Files.lines(logPath)) {
+                        lines.forEach(line -> {
+                            LogRecord parseRecord = LogParser.parseLogLine(line);
+                            if (parseRecord != null) {
+                                logRecords.add(parseRecord);
+                            }
+                        });
+                    }
                 }
             }
         }
