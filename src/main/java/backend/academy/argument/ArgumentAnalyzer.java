@@ -37,7 +37,7 @@ public class ArgumentAnalyzer {
      * @param args массив строк, представляющий аргументы командной строки
      * @throws IllegalArgumentException если передан неожиданный аргумент или неверный формат
      */
-    public void analyzeArguments(String[] args) {
+    public void analyzeArguments(String[] args) throws IOException {
         ParseState parseState = null;
 
         for (String arg : args) {
@@ -107,18 +107,41 @@ public class ArgumentAnalyzer {
     }
 
     /**
-     * Обновляет список источников логов если передана директория,
-     * обнавляя все файлы с расширением .log из указанной директории.
+     * Обновляет список источников логов если передана директория, шаблон файла, или шаблон пути
+     * обнавляя все файлы.
      *
      * @return обновленный список источников логов
      */
-    private List<LogSource> updateSourceListWithLogFiles() {
+    private List<LogSource> updateSourceListWithLogFiles() throws IOException {
         List<LogSource> updatedSources = new ArrayList<>();
 
         for (LogSource source : sourceList) {
             if (source.type() == LogSource.LogType.PATH) {
-                Path path = Paths.get(source.path());
-                if (Files.isDirectory(path)) {
+                String sourcePath = source.path();
+                Path path = Paths.get(sourcePath);
+
+                if (source.path().contains("**")) { // нахождение файлов во всех поддиректориях
+                    String regular = "\\*\\*";
+                    String basePath = sourcePath.split(regular)[0]; // Путь до звездочек
+                    String fileName = sourcePath.split(regular)[1].replace("/", ""); // Имя файла
+
+                    List<Path> newFiles = FilesFinder.findLogFilesInDirectories(basePath, fileName);
+
+                    for (Path file : newFiles) {
+                        updatedSources.add(new LogSource(file.toString(), LogSource.LogType.PATH));
+                    }
+
+                } else if (source.path().endsWith("*")) { // Добавление файлов удовлетворяющих шаблону
+                    String modifiedPath = source.path().replace("*", "");
+
+                    List<Path> newFiles = FilesFinder.findLogFileOfSample(modifiedPath);
+
+                    for (Path file : newFiles) {
+                        updatedSources.add(new LogSource(file.toString(), LogSource.LogType.PATH));
+                    }
+
+                } else if (Files.isDirectory(path)) { // добавление всех файлов .log из директории
+
                     try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.log")) {
                         for (Path entry : stream) {
                             updatedSources.add(new LogSource(entry.toString(), LogSource.LogType.PATH));
@@ -126,6 +149,7 @@ public class ArgumentAnalyzer {
                     } catch (IOException e) {
                         System.err.println("Error reading directory: " + e.getMessage());
                     }
+
                 } else {
                     updatedSources.add(source);
                 }

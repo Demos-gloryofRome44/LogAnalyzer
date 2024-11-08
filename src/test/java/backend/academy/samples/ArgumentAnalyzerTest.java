@@ -3,13 +3,14 @@ package backend.academy.samples;
 import backend.academy.argument.ArgumentAnalyzer;
 import backend.academy.enums.OutputFormat;
 import org.junit.jupiter.api.Test;
+import java.io.IOException;
 import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ArgumentAnalyzerTest {
     @Test
-    public void testAnalyzeArgumentsWithValidArgs() {
+    public void testAnalyzeArgumentsWithValidArgs() throws IOException {
         // аргументы командной строки
         String[] args = {
             "--path", "/var/logs/app.log",
