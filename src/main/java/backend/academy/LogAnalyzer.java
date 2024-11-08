@@ -41,10 +41,6 @@ public class LogAnalyzer {
 
             LogReport report = service.analyzeLogs(logRecords);
 
-            /*ReportGenerator generator = new ReportGenerator();
-            String output = argumentsAnalyzer.format() == OutputFormat.ADOC
-                ? generator.generateAdocReport(report, argumentsAnalyzer)
-                : generator.generateMarkdownReport(report, argumentsAnalyzer);*/
             OutputFormat format = argumentsAnalyzer.format();
             ReportGenerator generator = ReportFactory.createReportGenerator(format);
             String output = generator.generateReport(report, argumentsAnalyzer);
