@@ -45,9 +45,9 @@ public class MarkdownReportGenerator extends ReportGenerator {
 
         // Определяем форматирование в зависимости от наличия дополнительного заголовка
         if (countsColl == THREE_COLUMNS) {
-            reportStr.append("|:----------:|-----------:|:-----------:|\n");
+            reportStr.append("|:----------:|:-----------:|:-----------:|\n");
         } else if (countsColl == TWO_COLUMNS) {
-            reportStr.append("|:-----------------:|------------------:|\n");
+            reportStr.append("|:-----------------:|:------------------:|\n");
         }
 
         contentGenerator.run();
