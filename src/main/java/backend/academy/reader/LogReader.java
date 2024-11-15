@@ -14,12 +14,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class LogReader {
-    private LogReader() {
-        throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
-    }
-
     /**
      * Читает лог-файлы из указанных источников и возвращает список записей логов.
      *
@@ -27,33 +25,20 @@ public class LogReader {
      * @return список записей логов, прочитанных из источников
      * @throws IOException если происходит ошибка при чтении файлов или подключения к URL
      */
-    public static List<LogRecord> readLogFiles(List<LogSource> sources) throws IOException {
-        List<LogRecord> logRecords = new ArrayList<>();
-        List<LogRecord> update = new ArrayList<>();
-
-        for (LogSource source : sources) {
-            if (source.type() == LogSource.LogType.URI) {
-                logRecords.addAll(readFromUrl(source.path()));
-            } else if (source.type() == LogSource.LogType.PATH) {
-                String pathString = source.path();
-                Path logPath = Paths.get(pathString);
-
-                // Проверяем, является ли указанный путь обычным файлом и имеет ли он расширение .log
-                if (Files.isRegularFile(logPath) && logPath.toString().endsWith(".log")) {
-                    // Используем потоковое чтение для экономии памяти
-                    try (Stream<String> lines = Files.lines(logPath)) {
-                        lines.forEach(line -> {
-                            LogRecord parseRecord = LogParser.parseLogLine(line);
-                            if (parseRecord != null) {
-                                logRecords.add(parseRecord);
-                            }
-                        });
+    public static Stream<LogRecord> readLogFiles(List<LogSource> sources) throws IOException {
+        return sources.stream()
+            .flatMap(source -> {
+                if (source.type() == LogSource.LogType.URI) {
+                    try {
+                        return readFromUrl(source.path());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
+                } else if (source.type() == LogSource.LogType.PATH) {
+                    return readFromPath(source.path());
                 }
-            }
-        }
-
-        return logRecords;
+                return Stream.empty();
+            });
     }
 
     /**
@@ -63,23 +48,39 @@ public class LogReader {
      * @return список записей логов, прочитанных из URL
      * @throws IOException если происходит ошибка при подключении к URL или чтении данных
      */
-    private static List<LogRecord> readFromUrl(String urlString) throws IOException {
-        List<LogRecord> records = new ArrayList<>();
-
+    private static Stream<LogRecord> readFromUrl(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-            String line;
-            while ((line = in.readLine()) != null) {
-                LogRecord parseRecord = LogParser.parseLogLine(line);
-                if (parseRecord != null) {
-                    records.add(parseRecord);
-                }
-            }
+        int responseCode = conn.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new IOException("HTTP error code: " + responseCode);
         }
 
-        return records;
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        return in.lines() // Получаем поток строк
+            .map(LogParser::parseLogLine) // Преобразуем строки в LogRecord
+            .filter(parseRecord -> parseRecord != null);
+    }
+
+    /**
+     * Читает записи логов из указанного файла по локальному пути.
+     *
+     * @param pathString строка, представляющая путь к файлу
+     * @return поток записей логов, прочитанных из файла
+     */
+    private static Stream<LogRecord> readFromPath(String pathString) {
+        Path logPath = Paths.get(pathString);
+        if (Files.isRegularFile(logPath) && logPath.toString().endsWith(".log")) {
+            try {
+                return Files.lines(logPath)
+                    .map(LogParser::parseLogLine)
+                    .filter(parseRecord -> parseRecord != null); // Фильтруем null записи
+            } catch (IOException e) {
+                System.err.println("Error reading file: " + pathString);
+            }
+        }
+        return Stream.empty();
     }
 
     /**
