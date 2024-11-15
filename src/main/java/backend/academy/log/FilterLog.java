@@ -1,11 +1,9 @@
 package backend.academy.log;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("all")
 public class FilterLog {
-
     /**
      * Проверяет, соответствует ли запись лога заданному критерию фильтрации.
      *
@@ -39,13 +37,11 @@ public class FilterLog {
      * @param filterValue значение для фильтрации с возможностью использования символа подстановки '*'
      * @return список записей логов, соответствующих критериям фильтрации
      */
-    public List<LogRecord> filterLogs(List<LogRecord> logRecords, String filterField, String filterValue) {
+    public Stream<LogRecord> filterLogs(Stream<LogRecord> logRecords, String filterField, String filterValue) {
         if (filterField == null || filterValue == null) {
             return logRecords; // Если фильтры не заданы, возвращаем все записи
         }
 
-        return logRecords.stream()
-            .filter(logRecord -> isMatch(logRecord, filterField, filterValue))
-            .collect(Collectors.toList());
+        return logRecords.filter(logRecord -> isMatch(logRecord, filterField, filterValue));
     }
 }
