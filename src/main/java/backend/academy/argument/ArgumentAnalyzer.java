@@ -6,11 +6,12 @@ import backend.academy.log.LogSource;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.InvalidPathException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,16 +19,24 @@ import lombok.Getter;
 
 @Getter
 public class ArgumentAnalyzer {
-    private static final List<String> AVAILABLE_ARGS = Arrays.asList("--path", "--from", "--to", "--format",
+    private static final String FROM_ARG = "--from";
+    private static final String TO_ARG = "--to";
+
+    private static final List<String> AVAILABLE_ARGS = Arrays.asList("--path", FROM_ARG, TO_ARG, "--format",
         "--filter-field", "--filter-value");
 
-    private LocalDate from = null;
-    private LocalDate to = null;
+    private LocalDate from;
+    private LocalDate to;
     private OutputFormat format = OutputFormat.MARKDOWN;
     private final List<LogSource> sourceList = new ArrayList<>();
     private final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-    private String filterField = null;
-    private String filterValue = null;
+    private String filterField;
+    private String filterValue;
+
+
+    public ArgumentAnalyzer(String[] args) throws IOException {
+        analyzeArguments(args);
+    }
 
     /**
      * Анализирует аргументы командной строки и устанавливает соответствующие поля.
@@ -56,8 +65,8 @@ public class ArgumentAnalyzer {
                     }
                     sourceList.add(logSource);
                 }
-                case FROM -> from = LocalDate.parse(arg, formatter);
-                case TO -> to = LocalDate.parse(arg, formatter);
+                case FROM -> validateDateAndOrder(arg, FROM_ARG);
+                case TO -> validateDateAndOrder(arg, TO_ARG);
                 case FORMAT -> {
                     if ("adoc".equalsIgnoreCase(arg)) {
                         format = OutputFormat.ADOC;
@@ -94,15 +103,45 @@ public class ArgumentAnalyzer {
             } catch (URISyntaxException e) {
                 System.err.println("Invalid URI syntax: " + pathString);
             }
-        }
-
-        try {
+        } else {
             Path localPath = Paths.get(pathString);
+
+            if (!Files.exists(localPath)) {
+                throw new IllegalArgumentException("Файл не существует: " + pathString);
+            }
+
             return new LogSource(pathString, LogSource.LogType.PATH);
-        } catch (InvalidPathException e) {
-            System.err.println("Invalid path syntax: " + pathString);
         }
 
         return null;
+    }
+
+    /**
+     * Проверяет корректность дат.
+     *
+     * @param dateString строка даты для проверки
+     * @param argumentName имя аргумента, который проверяется (например, "--from" или "--to")
+     * @throws IllegalArgumentException если формат даты недействителен для указанного имени аргумента,
+     * или если дата "to" раньше даты "from"
+     */
+    private void validateDateAndOrder(String dateString, String argumentName) {
+        LocalDate date;
+        try {
+            date = LocalDate.parse(dateString, formatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format for " + argumentName + ": " + dateString);
+        }
+
+        // Проверка порядка дат
+        if (TO_ARG.equals(argumentName) && from != null && date.isBefore(from)) {
+            throw new IllegalArgumentException("--to date must be after --from date");
+        }
+
+        // Установка даты в соответствующее поле
+        if (FROM_ARG.equals(argumentName)) {
+            from = date;
+        } else if (TO_ARG.equals(argumentName)) {
+            to = date;
+        }
     }
 }
