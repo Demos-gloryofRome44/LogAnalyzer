@@ -106,6 +106,10 @@ public class ArgumentAnalyzer {
         } else {
             Path localPath = Paths.get(pathString);
 
+            if (pathString.contains("**") || pathString.contains("*")) {
+                return new LogSource(pathString, LogSource.LogType.PATH);
+            }
+
             if (!Files.exists(localPath)) {
                 throw new IllegalArgumentException("Файл не существует: " + pathString);
             }
