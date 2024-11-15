@@ -1,5 +1,6 @@
 package backend.academy.analyzer.argument;
 
+import lombok.experimental.UtilityClass;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -10,12 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@UtilityClass
 public class FilesFinder {
     private static final String ERROR_MESSAGE = "Caught an IOException: ";
-
-    private FilesFinder() {
-        throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
-    }
 
     /**
      * Нахождение конкретного файла в поддиректориях заданной директории.
