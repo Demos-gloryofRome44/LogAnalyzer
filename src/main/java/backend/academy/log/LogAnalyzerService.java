@@ -22,23 +22,23 @@ public class LogAnalyzerService {
      * @return объект LogReport, содержащий результаты анализа
      */
     public LogReport analyzeLogs(Stream<LogRecord> logRecords) {
-        Map<String, Long> resourcesCounter = new HashMap<>();
-        Map<String, Long> statusCodesCounter = new HashMap<>();
-        Map<String, Long> userAgentCounter = new HashMap<>();
-        Map<String, Long> ipAddressCounter = new HashMap<>();
+        Map<String, Integer> resourcesCounter = new HashMap<>();
+        Map<String, Integer> statusCodesCounter = new HashMap<>();
+        Map<String, Integer> userAgentCounter = new HashMap<>();
+        Map<String, Integer> ipAddressCounter = new HashMap<>();
 
         List<Long> responseSizes = new ArrayList<>();
         Set<String> uniqueIPs = new HashSet<>();
 
         // обработка записей
         logRecords.forEach(logRecord -> {
-            resourcesCounter.merge(logRecord.getResourcePath(), 1L, Long::sum);
+            resourcesCounter.merge(logRecord.getResourcePath(), 1, Integer::sum);
 
-            statusCodesCounter.merge(logRecord.status().toString(), 1L, Long::sum);
+            statusCodesCounter.merge(logRecord.status().toString(), 1, Integer::sum);
 
-            userAgentCounter.merge(logRecord.userAgent(), 1L, Long::sum);
+            userAgentCounter.merge(logRecord.userAgent(), 1, Integer::sum);
 
-            ipAddressCounter.merge(logRecord.remoteAddr(), 1L, Long::sum);
+            ipAddressCounter.merge(logRecord.remoteAddr(), 1, Integer::sum);
 
             responseSizes.add(logRecord.bodyBytesSent());
 
@@ -59,8 +59,8 @@ public class LogAnalyzerService {
         double percentile95ResponseSize = size95PercentileIndex >= 0 ? responseSizes.get(size95PercentileIndex) : 0;
 
         // Получение топов user agents и IP-адресов
-        List<Map.Entry<String, Long>> topUserAgent = getTop(userAgentCounter, TOP_LIMIT);
-        List<Map.Entry<String, Long>> topIpAddress = getTop(ipAddressCounter, TOP_LIMIT);
+        List<Map.Entry<String, Integer>> topUserAgent = getTop(userAgentCounter, TOP_LIMIT);
+        List<Map.Entry<String, Integer>> topIpAddress = getTop(ipAddressCounter, TOP_LIMIT);
 
         return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, topUserAgent,
             topIpAddress, averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
@@ -73,10 +73,10 @@ public class LogAnalyzerService {
      * @param limit максимальное количество верхних значений для получения
      * @return список пар (ключ-значение) с верхними значениями
      */
-    private List<Map.Entry<String, Long>> getTop(Map<String, Long> counts, int limit) {
+    private List<Map.Entry<String, Integer>> getTop(Map<String, Integer> counts, int limit) {
         return counts.entrySet()
             .stream()
-            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
             .limit(limit)
             .collect(Collectors.toList());
     }

@@ -1,12 +1,10 @@
 package backend.academy.report;
 
 import backend.academy.enums.OutputFormat;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class ReportFactory {
-    private ReportFactory() {
-        throw new UnsupportedOperationException("Утилитарный класс не может быть инстанцирован");
-    }
-
     public static ReportGenerator createReportGenerator(OutputFormat format) {
         switch (format) {
             case ADOC:
