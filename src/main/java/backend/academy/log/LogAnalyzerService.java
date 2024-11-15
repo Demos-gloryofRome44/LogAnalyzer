@@ -9,54 +9,58 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LogAnalyzerService {
     private static final double PERCENTILE_95 = 0.95;
     private static final int TOP_LIMIT = 3;
 
     /**
-     * Анализирует записи логов и генерирует отчет.
+     * Анализирует записи логов и генерирует общий отчет по всем файлам.
      *
      * @param logRecords список записей логов для анализа
      * @return объект LogReport, содержащий результаты анализа
      */
-    public LogReport analyzeLogs(List<LogRecord> logRecords) {
-        int totalRequests = logRecords.size();
-        Map<String, Integer> resourcesCounter = new HashMap<>();
-        Map<String, Integer> statusCodesCounter = new HashMap<>();
-        Map<String, Integer> userAgentCounter = new HashMap<>();
-        Map<String, Integer> ipAddressCounter = new HashMap<>();
-        List<Map.Entry<String, Integer>> topUserAgent;
-        List<Map.Entry<String, Integer>> topIpAddress;
+    public LogReport analyzeLogs(Stream<LogRecord> logRecords) {
+        Map<String, Long> resourcesCounter = new HashMap<>();
+        Map<String, Long> statusCodesCounter = new HashMap<>();
+        Map<String, Long> userAgentCounter = new HashMap<>();
+        Map<String, Long> ipAddressCounter = new HashMap<>();
 
         List<Long> responseSizes = new ArrayList<>();
         Set<String> uniqueIPs = new HashSet<>();
 
-        for (LogRecord logRecord : logRecords) {
-            resourcesCounter.put(logRecord.getResourcePath(),
-                resourcesCounter.getOrDefault(logRecord.getResourcePath(), 0) + 1);
-            statusCodesCounter.put(logRecord.status().toString(),
-                statusCodesCounter.getOrDefault(logRecord.status().toString(), 0) + 1);
+        // обработка записей
+        logRecords.forEach(logRecord -> {
+            resourcesCounter.merge(logRecord.getResourcePath(), 1L, Long::sum);
+
+            statusCodesCounter.merge(logRecord.status().toString(), 1L, Long::sum);
+
+            userAgentCounter.merge(logRecord.userAgent(), 1L, Long::sum);
+
+            ipAddressCounter.merge(logRecord.remoteAddr(), 1L, Long::sum);
+
             responseSizes.add(logRecord.bodyBytesSent());
+
             uniqueIPs.add(logRecord.remoteAddr());
+        });
 
-            String userAgent = logRecord.userAgent();
-            userAgentCounter.put(userAgent, userAgentCounter.getOrDefault(userAgent, 0) + 1);
+        int totalRequests = responseSizes.size();
 
-            String remoteAddr = logRecord.remoteAddr();
-            ipAddressCounter.put(remoteAddr, ipAddressCounter.getOrDefault(remoteAddr, 0) + 1);
+        // Расчет среднего размера ответа
+        double averageResponseSize = responseSizes.stream()
+            .mapToLong(Long::longValue)
+            .average()
+            .orElse(0);
 
-            uniqueIPs.add(remoteAddr);
-        }
-
-        double averageResponseSize = responseSizes.stream().mapToLong(Long::longValue).average().orElse(0);
-
+        // Расчет 95-го процентиля
         Collections.sort(responseSizes);
         int size95PercentileIndex = (int) Math.ceil(PERCENTILE_95 * responseSizes.size()) - 1; // 95th percentile
         double percentile95ResponseSize = size95PercentileIndex >= 0 ? responseSizes.get(size95PercentileIndex) : 0;
 
-        topUserAgent = getTop(userAgentCounter, TOP_LIMIT);
-        topIpAddress = getTop(ipAddressCounter, TOP_LIMIT);
+        // Получение топов user agents и IP-адресов
+        List<Map.Entry<String, Long>> topUserAgent = getTop(userAgentCounter, TOP_LIMIT);
+        List<Map.Entry<String, Long>> topIpAddress = getTop(ipAddressCounter, TOP_LIMIT);
 
         return new LogReport(totalRequests, resourcesCounter, statusCodesCounter, topUserAgent,
             topIpAddress, averageResponseSize, percentile95ResponseSize, uniqueIPs.size());
@@ -65,14 +69,14 @@ public class LogAnalyzerService {
     /**
      * Получает список верхних значений из заданной стастики.
      *
-     * @param userAgentCounts нахождение топов для выбранной статистики
+     * @param counts нахождение топов для выбранной статистики
      * @param limit максимальное количество верхних значений для получения
      * @return список пар (ключ-значение) с верхними значениями
      */
-    private List<Map.Entry<String, Integer>> getTop(Map<String, Integer> userAgentCounts, int limit) {
-        return userAgentCounts.entrySet()
+    private List<Map.Entry<String, Long>> getTop(Map<String, Long> counts, int limit) {
+        return counts.entrySet()
             .stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
             .limit(limit)
             .collect(Collectors.toList());
     }
