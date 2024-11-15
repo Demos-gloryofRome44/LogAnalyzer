@@ -1,13 +1,13 @@
-package backend.academy;
+package backend.academy.analyzer;
 
-import backend.academy.argument.ArgumentAnalyzer;
-import backend.academy.log.FilterLog;
-import backend.academy.log.LogAnalyzerService;
-import backend.academy.log.LogRecord;
-import backend.academy.reader.LogReader;
-import backend.academy.report.LogReport;
-import backend.academy.report.ReportFactory;
-import backend.academy.report.ReportGenerator;
+import backend.academy.analyzer.argument.ArgumentAnalyzer;
+import backend.academy.analyzer.log.FilterLog;
+import backend.academy.analyzer.log.LogAnalyzerService;
+import backend.academy.analyzer.log.LogRecord;
+import backend.academy.analyzer.reader.LogReader;
+import backend.academy.analyzer.report.LogReport;
+import backend.academy.analyzer.report.ReportFactory;
+import backend.academy.analyzer.report.ReportGenerator;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.stream.Stream;

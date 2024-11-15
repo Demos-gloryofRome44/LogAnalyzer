@@ -1,8 +1,8 @@
 package log;
 
-import backend.academy.log.LogAnalyzerService;
-import backend.academy.log.LogRecord;
-import backend.academy.report.LogReport;
+import backend.academy.analyzer.log.LogAnalyzerService;
+import backend.academy.analyzer.log.LogRecord;
+import backend.academy.analyzer.report.LogReport;
 import org.junit.jupiter.api.Test;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;

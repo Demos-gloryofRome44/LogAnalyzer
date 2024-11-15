@@ -1,6 +1,6 @@
-package backend.academy.log;
+package backend.academy.analyzer.log;
 
-import backend.academy.report.LogReport;
+import backend.academy.analyzer.report.LogReport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

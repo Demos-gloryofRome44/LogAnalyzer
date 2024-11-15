@@ -1,6 +1,6 @@
-package backend.academy.argument;
+package backend.academy.analyzer.argument;
 
-import backend.academy.log.LogSource;
+import backend.academy.analyzer.log.LogSource;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;

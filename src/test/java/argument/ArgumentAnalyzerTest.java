@@ -1,7 +1,7 @@
 package argument;
 
-import backend.academy.argument.ArgumentAnalyzer;
-import backend.academy.enums.OutputFormat;
+import backend.academy.analyzer.argument.ArgumentAnalyzer;
+import backend.academy.analyzer.enums.OutputFormat;
 import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.LocalDate;

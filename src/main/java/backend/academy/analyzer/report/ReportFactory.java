@@ -1,6 +1,6 @@
-package backend.academy.report;
+package backend.academy.analyzer.report;
 
-import backend.academy.enums.OutputFormat;
+import backend.academy.analyzer.enums.OutputFormat;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

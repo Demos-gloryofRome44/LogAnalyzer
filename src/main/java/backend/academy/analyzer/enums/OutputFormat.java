@@ -1,4 +1,4 @@
-package backend.academy.enums;
+package backend.academy.analyzer.enums;
 
 public enum OutputFormat {
     MARKDOWN,

@@ -1,4 +1,4 @@
-package backend.academy.log;
+package backend.academy.analyzer.log;
 
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;

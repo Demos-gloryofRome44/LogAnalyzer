@@ -1,8 +1,8 @@
 package report;
 
-import backend.academy.argument.ArgumentAnalyzer;
-import backend.academy.report.AdocReportGenerator;
-import backend.academy.report.LogReport;
+import backend.academy.analyzer.argument.ArgumentAnalyzer;
+import backend.academy.analyzer.report.AdocReportGenerator;
+import backend.academy.analyzer.report.LogReport;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

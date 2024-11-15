@@ -1,4 +1,4 @@
-package backend.academy.report;
+package backend.academy.analyzer.report;
 
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 

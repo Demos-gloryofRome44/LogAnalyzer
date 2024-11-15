@@ -1,8 +1,8 @@
-package backend.academy.reader;
+package backend.academy.analyzer.reader;
 
-import backend.academy.log.LogParser;
-import backend.academy.log.LogRecord;
-import backend.academy.log.LogSource;
+import backend.academy.analyzer.log.LogParser;
+import backend.academy.analyzer.log.LogRecord;
+import backend.academy.analyzer.log.LogSource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

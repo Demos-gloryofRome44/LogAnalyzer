@@ -1,4 +1,4 @@
-package backend.academy.argument;
+package backend.academy.analyzer.argument;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

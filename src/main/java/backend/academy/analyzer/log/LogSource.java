@@ -1,4 +1,4 @@
-package backend.academy.log;
+package backend.academy.analyzer.log;
 
 import java.nio.file.Paths;
 import lombok.Getter;

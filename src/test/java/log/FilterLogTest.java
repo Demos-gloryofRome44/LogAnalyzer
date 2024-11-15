@@ -1,7 +1,7 @@
 package log;
 
-import backend.academy.log.FilterLog;
-import backend.academy.log.LogRecord;
+import backend.academy.analyzer.log.FilterLog;
+import backend.academy.analyzer.log.LogRecord;
 import org.junit.jupiter.api.Test;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
