@@ -1,7 +1,8 @@
 ## [Академии Бэкенда 2024](https://education.tbank.ru/academy/backend/)
 
-Прект представялет собой конвеер : 
+Проект представялет собой конвеер : 
 - user input (file names, URL, etc) => Stream<LogRecord> => LogReport => текстовый отчёт в формате .md/.ad
+
 
 Проект состоит из следующих директорий и файлов:
 
